@@ -3,100 +3,126 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Popup thông tin thiết bị</title>
+<title>Device Info PRO</title>
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-}
+* { box-sizing: border-box; }
 
-.popup-bg {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6);
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
+  background: linear-gradient(135deg,#1e3c72,#2a5298);
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
 }
 
-.popup-box {
+.card {
   background: #fff;
-  width: 90%;
-  max-width: 350px;
-  border-radius: 12px;
-  padding: 18px;
+  width: 92%;
+  max-width: 420px;
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  animation: pop .3s ease;
+}
+
+@keyframes pop {
+  from { transform: scale(.8); opacity:0;}
+  to   { transform: scale(1); opacity:1;}
+}
+
+.title {
   text-align: center;
-  animation: zoom .25s ease;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 15px;
 }
 
-@keyframes zoom {
-  from {transform: scale(.7); opacity: 0;}
-  to {transform: scale(1); opacity: 1;}
-}
-
-.popup-box h3 {
-  margin: 0 0 12px;
-}
-
-.info {
-  text-align: left;
-  line-height: 1.7;
+.row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px dashed #ddd;
   font-size: 14px;
 }
 
-.close-btn {
-  margin-top: 15px;
-  background: #2ecc71;
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-size: 15px;
+.row:last-child { border-bottom: none; }
+
+.label { color:#666; }
+.value { font-weight: 600; }
+
+.footer {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 12px;
+  color: #888;
 }
 </style>
 </head>
 
 <body>
 
-<div class="popup-bg" id="popup">
-  <div class="popup-box">
-    <h3>📱 Thông tin thiết bị</h3>
-    <div class="info" id="deviceInfo"></div>
-    <button class="close-btn" onclick="closePopup()">Đóng</button>
-  </div>
+<div class="card">
+  <div class="title">📱 Thông tin thiết bị</div>
+
+  <div class="row"><span class="label">Thiết bị</span><span class="value" id="brand"></span></div>
+  <div class="row"><span class="label">Loại</span><span class="value" id="type"></span></div>
+  <div class="row"><span class="label">Hệ điều hành</span><span class="value" id="os"></span></div>
+  <div class="row"><span class="label">Trình duyệt</span><span class="value" id="browser"></span></div>
+  <div class="row"><span class="label">Màn hình</span><span class="value" id="screen"></span></div>
+  <div class="row"><span class="label">Ngôn ngữ</span><span class="value" id="lang"></span></div>
+
+  <div class="footer">Powered by QR Device Info</div>
 </div>
 
 <script>
-function getDeviceName() {
+function detectDevice() {
   let ua = navigator.userAgent.toLowerCase();
 
-  if (ua.includes("iphone")) return "iPhone";
-  if (ua.includes("ipad")) return "iPad";
-  if (ua.includes("samsung")) return "Samsung";
-  if (ua.includes("oppo")) return "Oppo";
-  if (ua.includes("vivo")) return "Vivo";
-  if (ua.includes("xiaomi")) return "Xiaomi";
-  if (ua.includes("huawei")) return "Huawei";
-  if (ua.includes("realme")) return "Realme";
+  let brand = "Không xác định";
+  if (ua.includes("iphone")) brand = "iPhone";
+  else if (ua.includes("ipad")) brand = "iPad";
+  else if (ua.includes("samsung")) brand = "Samsung";
+  else if (ua.includes("oppo")) brand = "Oppo";
+  else if (ua.includes("vivo")) brand = "Vivo";
+  else if (ua.includes("xiaomi")) brand = "Xiaomi";
+  else if (ua.includes("huawei")) brand = "Huawei";
+  else if (ua.includes("realme")) brand = "Realme";
 
-  return "Không xác định";
+  let type = /mobile/i.test(ua) ? "Điện thoại" : "Máy tính / Tablet";
+
+  let os = "Không rõ";
+  if (/android/i.test(ua)) {
+    let v = ua.match(/android\s([\d\.]+)/);
+    os = "Android " + (v ? v[1] : "");
+  }
+  if (/iphone|ipad/i.test(ua)) {
+    let v = ua.match(/os\s([\d\_]+)/);
+    os = "iOS " + (v ? v[1].replace(/_/g,'.') : "");
+  }
+
+  let browser = navigator.appVersion.split(")")[0];
+
+  return {
+    brand,
+    type,
+    os,
+    browser,
+    screen: screen.width + " x " + screen.height,
+    lang: navigator.language
+  };
 }
 
-const device = getDeviceName();
+const d = detectDevice();
 
-document.getElementById("deviceInfo").innerHTML = `
-<b>Thiết bị:</b> ${device}<br>
-<b>Hệ điều hành:</b> ${navigator.platform}<br>
-<b>Trình duyệt:</b> ${navigator.appVersion}<br>
-<b>Màn hình:</b> ${screen.width} x ${screen.height}
-`;
-
-function closePopup() {
-  document.getElementById("popup").style.display = "none";
-}
+document.getElementById("brand").innerText  = d.brand;
+document.getElementById("type").innerText   = d.type;
+document.getElementById("os").innerText     = d.os;
+document.getElementById("browser").innerText= d.browser;
+document.getElementById("screen").innerText = d.screen;
+document.getElementById("lang").innerText   = d.lang;
 </script>
 
 </body>
