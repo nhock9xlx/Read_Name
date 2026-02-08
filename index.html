@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Popup thông tin thiết bị</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+}
+
+.popup-bg {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.popup-box {
+  background: #fff;
+  width: 90%;
+  max-width: 350px;
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+  animation: zoom .25s ease;
+}
+
+@keyframes zoom {
+  from {transform: scale(.7); opacity: 0;}
+  to {transform: scale(1); opacity: 1;}
+}
+
+.popup-box h3 {
+  margin: 0 0 12px;
+}
+
+.info {
+  text-align: left;
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+.close-btn {
+  margin-top: 15px;
+  background: #2ecc71;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="popup-bg" id="popup">
+  <div class="popup-box">
+    <h3>📱 Thông tin thiết bị</h3>
+    <div class="info" id="deviceInfo"></div>
+    <button class="close-btn" onclick="closePopup()">Đóng</button>
+  </div>
+</div>
+
+<script>
+function getDeviceName() {
+  let ua = navigator.userAgent.toLowerCase();
+
+  if (ua.includes("iphone")) return "iPhone";
+  if (ua.includes("ipad")) return "iPad";
+  if (ua.includes("samsung")) return "Samsung";
+  if (ua.includes("oppo")) return "Oppo";
+  if (ua.includes("vivo")) return "Vivo";
+  if (ua.includes("xiaomi")) return "Xiaomi";
+  if (ua.includes("huawei")) return "Huawei";
+  if (ua.includes("realme")) return "Realme";
+
+  return "Không xác định";
+}
+
+const device = getDeviceName();
+
+document.getElementById("deviceInfo").innerHTML = `
+<b>Thiết bị:</b> ${device}<br>
+<b>Hệ điều hành:</b> ${navigator.platform}<br>
+<b>Trình duyệt:</b> ${navigator.appVersion}<br>
+<b>Màn hình:</b> ${screen.width} x ${screen.height}
+`;
+
+function closePopup() {
+  document.getElementById("popup").style.display = "none";
+}
+</script>
+
+</body>
+</html>
